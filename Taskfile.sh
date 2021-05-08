@@ -20,6 +20,7 @@ TITLEC="$(cat .settings.json | jq -r .show.titlec)"
 [[ $* == *--dry-run* ]] && DRY=true
 
 function install {
+    # apt install git golang jq curl ffmpeg
 	go get github.com/ericchiang/pup
 }
 
@@ -39,8 +40,8 @@ function auth {
         -F "password=$password" \
         -F "woocommerce-login-nonce=$nonce" \
         -F 'login=log in' \
-        ${HOST}/my-account/
-    
+        "${HOST}/my-account/"
+
     AUTHED=true
 }
 
@@ -62,7 +63,7 @@ function new {
     IFS=$'\n'
     for item in $arr
     do
-        if ! grep -Fq $item .seen
+        if ! grep -Fq "$item" .seen
         then
             out="$out$item\n"
         else
@@ -84,9 +85,9 @@ function download-new {
     for item in $arr
     do
         [ $first = false ] && echo '---------------------------------------'
-        
+
         download "$item" "$outpath"
-        
+
         first=false
     done
 
@@ -117,7 +118,7 @@ function download {
     # Get date from title (An Episode - m-d-y) and convert from m-d-y to y-m-d
     date="${title##* }"
     date="$(echo $date | { IFS=- read m d y && echo "$y-$m-$d"; })"
-    year=${date:0:4}
+    year="${date:0:4}"
 
     subtitle="${title% *}"
 
@@ -146,14 +147,14 @@ function download {
 
     ($DRY) && return
 
-    mkdir -p $outpath
+    mkdir -p "$outpath"
 
     # Save plot to metadata file
     echo "$plot" > "$outpath/$plotFile"
 
     ffmpeg -v quiet -stats \
         -headers "Referer: ${HOST}/" \
-        -i $hlsurl \
+        -i "$hlsurl" \
         "$outpath/$file"
 
     # Save the url to the database to prevent duplicate downloads
@@ -161,7 +162,7 @@ function download {
 }
 
 function plex-scan {
-    curl $PLEX/library/sections/$SECTION/refresh?X-Plex-Token=$TOKEN
+    curl "$PLEX/library/sections/$SECTION/refresh?X-Plex-Token=$TOKEN"
 }
 
 function help {
