@@ -1,0 +1,17 @@
+{
+    "host": "https://www.google.com",
+    "match": "s/.*(https:\\/\\/[a-z0-9]+\\.google.com\\/[a-zA-Z0-9&=_\\/%-]+\\/hls.m3u8).*/\\1/p",
+    "plex": {
+        "host": "http://plex.local:32400",
+        "section": "1",
+        "series": "A Google Story",
+        "token": ""
+    },
+    "show": {
+        "titlea": "",
+        "titleb": "",
+        "titlec": ""
+    },
+    "username": "",
+    "password": ""
+}
