@@ -76,10 +76,10 @@ function new {
 
 function download-new {
     local outpath first arr item
-    outpath=${1:?"Usage - download <OUTPATH>"}
+    outpath="${1:?'Usage - download <OUTPATH>'}"
     first=true
 
-    arr=$(new | jq -r '.[]')
+    arr=$(new | jq -r 'reverse | .[]')
 
     IFS=$'\n'
     for item in $arr
@@ -96,8 +96,8 @@ function download-new {
 
 function download {
     local baseurl outpath html hlsurl title plot date year subtitle file plotFile
-    baseurl=${1:?"Usage - download <URL> <OUTPATH>"}
-    outpath=${2:?"Usage - download <URL> <OUTPATH>"}
+    baseurl="${1:?'Usage - download <URL> <OUTPATH>'}"
+    outpath="${2:?'Usage - download <URL> <OUTPATH>'}"
 
     echo "Attempting to download stream at $baseurl"
     echo
