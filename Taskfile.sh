@@ -91,7 +91,9 @@ function download-new {
         first=false
     done
 
-    plex-scan
+    # If we come out of the loop with first=true we downloaded nothing
+    ($first) && echo "Nothing new to download"
+    (! $first) && plex-scan
 }
 
 function download {
