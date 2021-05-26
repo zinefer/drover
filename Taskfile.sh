@@ -154,7 +154,10 @@ function download {
     # Save plot to metadata file
     echo "$plot" > "$outpath/$plotFile"
 
-    ffmpeg -v quiet -stats \
+    # Give less feedback when not interactive
+    [[ -v PS1 ]] && delay="0.5" || delay="60"
+
+    ffmpeg -v quiet -stats -stats_period $delay \
         -headers "Referer: ${HOST}/" \
         -i "$hlsurl" \
         "$outpath/$file"
