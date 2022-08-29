@@ -20,7 +20,7 @@ TITLEC="$(cat .settings.json | jq -r .show.titlec)"
 [[ $* == *--dry-run* ]] && DRY=true
 
 function install {
-    # apt install git golang jq curl ffmpeg
+    # apt install git golang jq curl ffmpeg moreutils
 	go get github.com/ericchiang/pup
 }
 
@@ -155,19 +155,24 @@ function download {
     echo "$plot" > "$outpath/$plotFile"
 
     # Give less feedback when not interactive
-    [[ -v PS1 ]] && delay="0.5" || delay="60"
+    [[ -v PS1 ]] && delay="0.5" || delay="1200"
 
-    ffmpeg -v quiet -stats -stats_period $delay \
+    ffmpeg -y -v quiet -stats -stats_period $delay \
         -headers "Referer: ${HOST}/" \
         -i "$hlsurl" \
         "$outpath/$file"
 
-    # Save the url to the database to prevent duplicate downloads
-    echo -e "$baseurl" >> .seen
+    if [ $? -eq 0 ]; then
+        # Save the url to the database to prevent duplicate downloads
+        echo -e "$baseurl" >> .seen
+    else
+        echo "FFMPEG FAILURE"
+        rm "$outpath/$plotFile"
+    fi
 }
 
 function plex-scan {
-    curl "$PLEX/library/sections/$SECTION/refresh?X-Plex-Token=$TOKEN"
+    curl -s "$PLEX/library/sections/$SECTION/refresh?X-Plex-Token=$TOKEN"
 }
 
 function help {
@@ -180,5 +185,5 @@ if [ $QUIET = false ]; then
     TIMEFORMAT="Task completed in %3lR"
     time ${@:-help}
 else
-    ${@:-help}
+    ${@:-help} | ts '[%b %d %H:%M:%S]'
 fi
