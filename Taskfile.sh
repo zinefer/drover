@@ -22,6 +22,7 @@ TITLEC="$(cat .settings.json | jq -r .show.titlec)"
 function install {
     # apt install git golang jq curl ffmpeg moreutils
 	go get github.com/ericchiang/pup
+    npm install github:zinefer/parse-hls#dist
 }
 
 function auth {
@@ -154,12 +155,20 @@ function download {
     # Save plot to metadata file
     echo "$plot" > "$outpath/$plotFile"
 
+    # ffmpeg will check all variants inside the hls file and exit if any
+    # of them 404 even if we don't want them so we will parse the hls file ourselves
+    # and pass the m3u8 url to ffmpeg directly
+    m3u8path="$(curl -s --header "Referer: ${HOST}/" $hlsurl | grep '.m3u8$' | tail -n 1)"
+    m3u8url="${hlsurl%/*}/$m3u8path"
+
+    echo "m3u8url=$m3u8url"
+
     # Give less feedback when not interactive
     [[ -v PS1 ]] && delay="0.5" || delay="1200"
 
-    ffmpeg -y -v quiet -stats -stats_period $delay \
+    ffmpeg -v quiet -stats -stats_period $delay \
         -headers "Referer: ${HOST}/" \
-        -i "$hlsurl" \
+        -i "$m3u8url" \
         "$outpath/$file"
 
     if [ $? -eq 0 ]; then
