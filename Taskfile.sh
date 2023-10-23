@@ -47,29 +47,43 @@ function auth {
 }
 
 function list {
-    auth
+    local page
+    page="${1:=1}"
 
-    curl -s --cookie ./cookies \
-            ${HOST}/category/rmg-plus/ |
+    auth
+    
+    curl -s --location-trusted --cookie ./cookies \
+            ${HOST}/category/rmg-plus/page/$page |
         pup '.vlog-content .entry-title a' attr{href} |
         uniq |
         jq --raw-input --slurp 'split("\n") | map(select(. != "")) | unique | sort | reverse'
 }
 
 function new {
-    local arr out item
-    arr=$(list | jq -r '.[]')
+    local arr out item foundlastseen page
+
+    foundlastseen=false
+    page=0
     out=""
 
-    IFS=$'\n'
-    for item in $arr
-    do
-        if ! grep -Fq "$item" .seen
-        then
-            out="$out$item\n"
-        else
-            ($DEBUG) && >&2 echo "Already downloaded $item"
-        fi
+    while [ "$foundlastseen" == false ] && [ "$page" -lt 15 ]; do
+        page=$((page+1))
+
+        ($DEBUG) && >&2 echo "Getting page $page"
+    
+        arr=$(list $page | jq -r '.[]')
+
+        IFS=$'\n'
+        for item in $arr
+        do
+            if ! grep -Fq "$item" .seen
+            then
+                out="$out$item\n"
+            else
+                foundlastseen=true
+                ($DEBUG) && >&2 echo "Already downloaded $item"
+            fi
+        done
     done
 
     echo -e "$out" | jq --raw-input --slurp 'split("\n") | map(select(. != "")) | sort | reverse'
