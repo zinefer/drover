@@ -172,7 +172,7 @@ function download {
     # ffmpeg will check all variants inside the hls file and exit if any
     # of them 404 even if we don't want them so we will parse the hls file ourselves
     # and pass the m3u8 url to ffmpeg directly
-    m3u8path="$(curl -s --header "Referer: ${HOST}/" $hlsurl | grep '.m3u8$' | tail -n 1)"
+    m3u8path="$(curl -s --header "Referer: ${HOST}/" $hlsurl | grep '.m3u8$' | tail -n 2 | head -n 1)"
     m3u8url="${hlsurl%/*}/$m3u8path"
 
     echo "m3u8url=$m3u8url"
@@ -180,7 +180,7 @@ function download {
     # Give less feedback when not interactive
     [[ -v PS1 ]] && delay="0.5" || delay="1200"
 
-    ffmpeg -v quiet -stats -stats_period $delay \
+    ffmpeg -v quiet -stats \
         -headers "Referer: ${HOST}/" \
         -i "$m3u8url" \
         "$outpath/$file"
