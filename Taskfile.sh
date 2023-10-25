@@ -180,7 +180,7 @@ function download {
     # Give less feedback when not interactive
     [[ -v PS1 ]] && delay="0.5" || delay="1200"
 
-    ffmpeg -v quiet -stats \
+    ffmpeg -y -v quiet -stats \
         -headers "Referer: ${HOST}/" \
         -i "$m3u8url" \
         "$outpath/$file"
