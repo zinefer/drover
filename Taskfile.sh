@@ -133,7 +133,7 @@ function download {
         pup '.fl-node-5a14e2cf5281e div p' text{})"
 
     # Get date from baseurl
-    date="$(echo $baseurl | awk -F'/' '{print $4 "/" $5 "/" $6}')"
+    date="$(echo $baseurl | awk -F'/' '{print $4 "-" $5 "-" $6}')"
     year="${date:0:4}"
 
     subtitle="${title% *}"
