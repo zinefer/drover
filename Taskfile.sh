@@ -132,9 +132,8 @@ function download {
     plot="$(echo "$html" |
         pup '.fl-node-5a14e2cf5281e div p' text{})"
 
-    # Get date from title (An Episode - m-d-y) and convert from m-d-y to y-m-d
-    date="${title##* }"
-    date="$(echo $date | { IFS=- read m d y && echo "$y-$m-$d"; })"
+    # Get date from baseurl
+    date="$(echo $baseurl | awk -F'/' '{print $4 "/" $5 "/" $6}')"
     year="${date:0:4}"
 
     subtitle="${title% *}"
